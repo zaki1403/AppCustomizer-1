@@ -6,22 +6,22 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-# Link to your exact Variable Group in DevOps Library
+# Link to your exact Variable Group from DevOps Library
 variables:
 - group: Spfx-Extensions-Variables
 
 steps:
-# 1. Setup Node.js 22 (Matches package.json constraint)
+# 1. Setup Node.js 22 (Matches your package.json engine constraint)
 - task: NodeTool@0
   inputs:
     versionSpec: '22.x'
   displayName: 'Use Node.js 22'
 
-# 2. Download Certificate from Secure Files
+# 2. Download Certificate from Secure Files (Matches SPFxPipeline.pfx)
 - task: DownloadSecureFile@1
   name: certFile
   inputs:
-    secureFile: 'certificate.pfx'
+    secureFile: 'SPFxPipeline.pfx'
   displayName: 'Download PFX Certificate'
 
 # 3. Install Dependencies
@@ -38,7 +38,7 @@ steps:
 - script: |
     npm install -g @pnp/cli-microsoft365
     
-    # Login to M365 using App Registration & Certificate
+    # Login using Certificate & App Registration variables
     m365 login $(SiteUrl) --authType certificate --clientId $(spfx_client_id) --tenant $(spfx_tenant_id) --certificateFile "$(certFile.secureFilePath)" --password "$(spfx_cert_password)"
     
     # Upload & overwrite package in Site Collection App Catalog
