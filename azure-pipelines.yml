@@ -6,7 +6,7 @@ variables:
   - group: 'Spfx-Extensions-Variables'
   # Paste your App Customizer Solution ID (GUID from package-solution.json) here:
   - name: spfx_app_id
-    value: 'YOUR_APP_GUID_HERE'
+    value: 'f5e2e15c-f324-44cb-81b2-807dcca801de'
 
 stages:
   # =========================================================================
