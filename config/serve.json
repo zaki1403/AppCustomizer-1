@@ -1,0 +1,33 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/spfx-serve.schema.json",
+  "port": 4321,
+  "https": true,
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://tns05.sharepoint.com/SitePages/Home.aspx",
+      "customActions": {
+        "71258acd-5e48-4a7a-8890-ae20c2067cac": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "layoutStyle": "corporateDark",
+            "topMessage": "",
+            "bottomMessage": "© 2026 Company Name | Privacy Policy | Support Desk"
+          }
+        }
+      }
+    },
+    "minimalist": {
+      "pageUrl": "https://tns05.sharepoint.com/SitePages/Home.aspx",
+      "customActions": {
+        "71258acd-5e48-4a7a-8890-ae20c2067cac": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "layoutStyle": "minimalistLight",
+            "topMessage": "Welcome to our updated Site Collection!",
+            "bottomMessage": "Company Intranet v2.0"
+          }
+        }
+      }
+    }
+  }
+}

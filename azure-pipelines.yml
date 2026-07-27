@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Link to your exact Variable Group name from the screenshot
+variables:
+- group: Spfx-Extensions-Variables
+
+steps:
+# 1. Setup Node.js 22
+- task: NodeTool@0
+  inputs:
+    versionSpec: '22.x'
+  displayName: 'Use Node.js 22'
+
+# 2. Download the Secure File (certificate.pfx)
+- task: DownloadSecureFile@1
+  name: certFile
+  inputs:
+    secureFile: 'certificate.pfx'
+  displayName: 'Download PFX Certificate'
+
+# 3. Install Dependencies
+- script: |
+    npm ci
+  displayName: 'Install Dependencies'
+
+# 4. Build & Package Solution using Heft
+- script: |
+    npm run build
+  displayName: 'Heft Build & Package'
+
+# 5. Deploy to SharePoint via CLI for Microsoft 365
+- script: |
+    npm install -g @pnp/cli-microsoft365
+    
+    # Login using your exact variable names from the screenshot
+    m365 login $(SiteUrl) --authType certificate --clientId $(spfx_client_id) --tenant $(spfx_tenant_id) --certificateFile "$(certFile.secureFilePath)" --password "$(spfx_cert_password)"
+    
+    # Add package to Site Collection App Catalog
+    m365 spo app add --filePath "$(System.DefaultWorkingDirectory)/sharepoint/solution/site-banner-app.sppkg" --appCatalogScope sitecollection --appCatalogUrl $(SiteUrl) --overwrite
+    
+    # Retrieve App ID and Deploy
+    APP_ID=$(m365 spo app list --appCatalogScope sitecollection --appCatalogUrl $(SiteUrl) --query "[?Title=='site-banner-app'].Id" -o raw)
+    m365 spo app deploy --id $APP_ID --appCatalogScope sitecollection --appCatalogUrl $(SiteUrl)
+  displayName: 'Deploy to SharePoint App Catalog'

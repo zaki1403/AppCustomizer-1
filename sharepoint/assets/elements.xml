@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <CustomAction
+        Title="GlobalHeaderFooter"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="71258acd-5e48-4a7a-8890-ae20c2067cac"
+        ClientSideComponentProperties="{&quot;topMessage&quot;:&quot;Welcome to our Site Collection!&quot;,&quot;bottomMessage&quot;:&quot;© 2026 Company Name. All rights reserved.&quot;}">
+    </CustomAction>
+</Elements>
