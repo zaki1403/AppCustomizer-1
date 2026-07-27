@@ -74,7 +74,6 @@ stages:
     dependsOn: BuildStage
     condition: succeeded()
     variables:
-      # Pass the dynamic .sppkg name from BuildStage output
       DynamicSpPkgName: $[ stageDependencies.BuildStage.BuildJob.outputs['GetSharePointPackage.SpPkgFileName'] ]
     jobs:
       - job: DeployJob
@@ -104,26 +103,24 @@ stages:
 
           # 1. Authenticate with SharePoint via Entra App Registration
           - script: |
-              m365 login --authType certificate --clientId "$(spfx_client_id)" --tenant "$(spfx_tenant_id)" --certificateFile "$(spfxCertFile.secureFilePath)" --password "$(spfx_cert_password)"
+              m365 login --authType certificate --appId "$(spfx_client_id)" --tenant "$(spfx_tenant_id)" --certificateFile "$(spfxCertFile.secureFilePath)" --password "$(spfx_cert_password)"
             displayName: 'Authenticate with SharePoint'
 
-          # 2. Explicitly set SharePoint context
+          # 2. Set SharePoint Context URL
           - script: |
               m365 spo set --url "$(SiteUrl)"
             displayName: 'Set SharePoint Context URL'
 
-          # 3. Upload Package to Site Collection App Catalog
+          # 3. Upload Package to App Catalog
           - script: |
               m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(DynamicSpPkgName)" --appCatalogUrl "$(SiteUrl)" --appCatalogScope sitecollection --overwrite
             displayName: 'Upload Package to App Catalog'
 
-          # 4. Dynamically retrieve App ID & Deploy (NO hardcoded GUID!)
+          # 4. Dynamically retrieve App ID & Deploy
           - script: |
-              # Extract project title dynamically from package-solution.json name attribute or query app catalog by package filename
               APP_ID=$(m365 spo app list --appCatalogScope sitecollection --appCatalogUrl "$(SiteUrl)" --query "[?contains(Title, '$(DynamicSpPkgName)') || contains(Filename, '$(DynamicSpPkgName)')].Id | [0]" -o raw)
               
               if [ -z "$APP_ID" ]; then
-                # Fallback search if exact match query returns null
                 APP_ID=$(m365 spo app list --appCatalogScope sitecollection --appCatalogUrl "$(SiteUrl)" --query "[0].Id" -o raw)
               fi
               
