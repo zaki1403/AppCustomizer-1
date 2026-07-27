@@ -4,6 +4,9 @@ trigger:
 variables:
   # Link to your Azure DevOps Variable Group
   - group: 'Spfx-Extensions-Variables'
+  # Paste your App Customizer Solution ID (GUID from package-solution.json) here:
+  - name: spfx_app_id
+    value: 'YOUR_APP_GUID_HERE'
 
 stages:
   # =========================================================================
@@ -116,14 +119,7 @@ stages:
               m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(DynamicSpPkgName)" --appCatalogUrl "$(SiteUrl)" --appCatalogScope sitecollection --overwrite
             displayName: 'Upload Package to App Catalog'
 
-          # 4. Dynamically retrieve App ID & Deploy
+          # 4. Deploy and activate the package using the Solution ID
           - script: |
-              APP_ID=$(m365 spo app list --appCatalogScope sitecollection --appCatalogUrl "$(SiteUrl)" --query "[?contains(Title, '$(DynamicSpPkgName)') || contains(Filename, '$(DynamicSpPkgName)')].Id | [0]" -o raw)
-              
-              if [ -z "$APP_ID" ]; then
-                APP_ID=$(m365 spo app list --appCatalogScope sitecollection --appCatalogUrl "$(SiteUrl)" --query "[0].Id" -o raw)
-              fi
-              
-              echo "Deploying App ID: $APP_ID"
-              m365 spo app deploy --id $APP_ID --appCatalogScope sitecollection --appCatalogUrl "$(SiteUrl)"
+              m365 spo app deploy --id "$(spfx_app_id)" --appCatalogUrl "$(SiteUrl)" --appCatalogScope sitecollection
             displayName: 'Deploy and Activate SPFx Package'
