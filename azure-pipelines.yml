@@ -6,18 +6,18 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-# Link to your exact Variable Group name from the screenshot
+# Link to your exact Variable Group in DevOps Library
 variables:
 - group: Spfx-Extensions-Variables
 
 steps:
-# 1. Setup Node.js 22
+# 1. Setup Node.js 22 (Matches package.json constraint)
 - task: NodeTool@0
   inputs:
     versionSpec: '22.x'
   displayName: 'Use Node.js 22'
 
-# 2. Download the Secure File (certificate.pfx)
+# 2. Download Certificate from Secure Files
 - task: DownloadSecureFile@1
   name: certFile
   inputs:
@@ -29,19 +29,19 @@ steps:
     npm ci
   displayName: 'Install Dependencies'
 
-# 4. Build & Package Solution using Heft
+# 4. Clean, Build & Package using Heft
 - script: |
     npm run build
   displayName: 'Heft Build & Package'
 
-# 5. Deploy to SharePoint via CLI for Microsoft 365
+# 5. Deploy Package to SharePoint App Catalog via M365 CLI
 - script: |
     npm install -g @pnp/cli-microsoft365
     
-    # Login using your exact variable names from the screenshot
+    # Login to M365 using App Registration & Certificate
     m365 login $(SiteUrl) --authType certificate --clientId $(spfx_client_id) --tenant $(spfx_tenant_id) --certificateFile "$(certFile.secureFilePath)" --password "$(spfx_cert_password)"
     
-    # Add package to Site Collection App Catalog
+    # Upload & overwrite package in Site Collection App Catalog
     m365 spo app add --filePath "$(System.DefaultWorkingDirectory)/sharepoint/solution/site-banner-app.sppkg" --appCatalogScope sitecollection --appCatalogUrl $(SiteUrl) --overwrite
     
     # Retrieve App ID and Deploy
