@@ -28,7 +28,7 @@ export default class GlobalBannerApplicationCustomizer
 
   private _renderPlaceholders(): void {
     // Relative path to your newly uploaded image: sp3.jpg
-    const imageUrl = '/SiteAssets/SitePages/Home/sp3.jpg';
+    const imageUrl = '/SiteAssets/SitePages/Home/sp6.jpg';
 
     // Render Top Header
     if (!this._topPlaceholder) {
